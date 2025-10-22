@@ -1,0 +1,34 @@
+{
+  "trendingDestinations": [
+    {
+      "id": 1,
+      "city": "London",
+      "country": "United Kingdom",
+      "icon": "location"
+    },
+    {
+      "id": 2,
+      "city": "Manchester",
+      "country": "United Kingdom",
+      "icon": "location"
+    },
+    {
+      "id": 3,
+      "city": "Edinburgh",
+      "country": "United Kingdom",
+      "icon": "location"
+    },
+    {
+      "id": 4,
+      "city": "Paris",
+      "country": "France",
+      "icon": "location"
+    },
+    {
+      "id": 5,
+      "city": "Glasgow",
+      "country": "United Kingdom",
+      "icon": "location"
+    }
+  ]
+}
