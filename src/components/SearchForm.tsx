@@ -8,7 +8,9 @@ import {
   Typography, 
   Popper,
   Modal,
-  Stack
+  Stack,
+  Container,
+  CircularProgress
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -16,6 +18,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
 import DatePicker from './DatePicker';
 import GuestsDropdown from './GuestsDropdown';
+import HotelCard from './HotelCard';
+import { searchHotels } from '../services/api';
+import type { Hotel, SearchParams } from '../services/api';
 
 const SearchForm: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
@@ -27,6 +32,9 @@ const SearchForm: React.FC = () => {
     children: 0,
     rooms: 1
   });
+  const [searchResults, setSearchResults] = useState<Hotel[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   
   const handleDateClick = (event: React.MouseEvent<HTMLElement>) => {
     // Toggle date picker visibility
@@ -55,9 +63,43 @@ const SearchForm: React.FC = () => {
     setGuestsAnchorEl(null);
   };
 
-  const handleGuestInfoChange = (adults: number, children: number, rooms: number) => {
+  const handleGuestsSelect = (adults: number, children: number, rooms: number) => {
     setGuestInfo({ adults, children, rooms });
     setGuestsAnchorEl(null);
+  };
+  
+  const handleSearch = async () => {
+    setIsSearching(true);
+    setHasSearched(true);
+    
+    // Format dates for API call
+    const fromDate = dateRange.startDate ? 
+      dateRange.startDate.toISOString().split('T')[0] : 
+      '2025-10-25'; // Default date if none selected
+      
+    const toDate = dateRange.endDate ? 
+      dateRange.endDate.toISOString().split('T')[0] : 
+      '2025-10-27'; // Default date if none selected
+    
+    const searchParams: SearchParams = {
+      query: searchValue || 'Ocean',
+      from: fromDate,
+      to: toDate,
+      adults: guestInfo.adults,
+      children: guestInfo.children
+    };
+    
+    try {
+      const results = await searchHotels(searchParams);
+      setSearchResults(results);
+      // Close any open dropdowns
+      setDateAnchorEl(null);
+      setGuestsAnchorEl(null);
+    } catch (error) {
+      console.error('Error searching hotels:', error);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const formatDateRange = () => {
@@ -217,29 +259,25 @@ const SearchForm: React.FC = () => {
             mt: { xs: 1, sm: 0 }
           }}
         >
-          <Box
-            component="button"
-            sx={{
-              backgroundColor: 'primary.main',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: { xs: '8px 16px', sm: '16px 24px' },
-              fontSize: { xs: '0.875rem', sm: '1rem' },
-              fontWeight: 'bold',
-              cursor: 'pointer',
+          <Button 
+            variant="contained" 
+            color="primary"
+            size="large"
+            startIcon={<SearchIcon />}
+            onClick={handleSearch}
+            disabled={isSearching}
+            sx={{ 
               height: { xs: '40px', sm: '56px' },
-              width: { xs: '100%', sm: 'auto' },
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderRadius: '8px',
+              px: { xs: 2, sm: 4 },
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+              textTransform: 'none',
+              boxShadow: 2,
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
-            Search
-          </Box>
+            {isSearching ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+          </Button>
         </Box>
       </Stack>
 
@@ -270,12 +308,26 @@ const SearchForm: React.FC = () => {
       >
         <GuestsDropdown 
           onClose={handleGuestsClose}
-          onApply={handleGuestInfoChange}
+          onApply={handleGuestsSelect}
           initialAdults={guestInfo.adults}
           initialChildren={guestInfo.children}
           initialRooms={guestInfo.rooms}
         />
       </Modal>
+      
+      {/* Search Results Section */}
+      {searchResults.length > 0 && (
+        <Box sx={{ mt: 4, width: '100%' }}>
+          <Typography variant="h5" component="h2" sx={{ mb: 2, fontWeight: 'bold' }}>
+            Search Results
+          </Typography>
+          <Box>
+            {searchResults.map((hotel) => (
+              <HotelCard key={hotel.hotelId} hotel={hotel} />
+            ))}
+          </Box>
+        </Box>
+      )}
     </Paper>
   );
 };
