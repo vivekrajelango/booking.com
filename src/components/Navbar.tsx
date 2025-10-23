@@ -18,8 +18,8 @@ const Navbar: React.FC = () => {
     <AppBar position="static" sx={{ bgcolor: '#003580', padding: { xs: '4px 0', sm: '8px 0' } }}>
       <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 } }}>
         <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="h5" component="div" fontWeight="bold" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
-            Booking.com<Typography component="span" sx={{ display: { xs: 'inline', sm: 'inline' }, fontSize: '0.8em' }}>GBP</Typography>
+          <Typography variant="h5" fontWeight="bold" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+            Booking.com<Typography sx={{ display: { xs: 'inline', sm: 'inline' }, fontSize: '0.8em' }}>GBP</Typography>
           </Typography>
           <Stack direction="row" spacing={{ xs: 0.5, sm: 2 }} alignItems="center">
             <IconButton color="inherit" sx={{ display: { xs: 'none', sm: 'flex' } }}>

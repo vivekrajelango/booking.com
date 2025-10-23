@@ -84,5 +84,3 @@ export const searchHotels = async (params: SearchParams): Promise<Hotel[]> => {
   
   return results;
 };
-
-export type { Hotel, SearchParams };

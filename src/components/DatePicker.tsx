@@ -220,7 +220,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
           {/* Weekday Headers */}
           <Grid container sx={{ mb: 0.5 }}>
             {weekdays.map((day, index) => (
-              <Grid item key={index} sx={{ width: `${100/7}%` }}>
+              <Grid key={index} sx={{ width: `${100/7}%` }}>
                 <Typography 
                   align="center" 
                   sx={{ 
@@ -238,7 +238,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         {/* Calendar Days */}
         <Grid container>
           {currentMonthDays.map((day, index) => (
-            <Grid item key={index} sx={{ width: `${100/7}%` }}>
+            <Grid key={index} sx={{ width: `${100/7}%` }}>
               <Box 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -320,7 +320,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         {/* Weekday Headers */}
         <Grid container sx={{ mb: 0.5 }}>
           {weekdays.map((day, index) => (
-            <Grid item key={index} sx={{ width: `${100/7}%` }}>
+            <Grid key={index} sx={{ width: `${100/7}%` }}>
               <Typography 
                 align="center" 
                 sx={{ 
@@ -338,7 +338,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         {/* Calendar Days */}
         <Grid container>
           {nextMonthDays.map((day, index) => (
-            <Grid item key={index} sx={{ width: `${100/7}%` }}>
+            <Grid key={index} sx={{ width: `${100/7}%` }}>
               <Box 
                 onClick={(e) => {
                   e.stopPropagation();

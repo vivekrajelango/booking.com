@@ -33,7 +33,7 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
         justifyContent: 'space-between'
       }}>
         <CardContent sx={{ flex: '1 0 auto' }}>
-          <Typography component="div" variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
             {hotel.name}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

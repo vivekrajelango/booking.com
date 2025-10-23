@@ -6,10 +6,8 @@ import {
   Button, 
   InputAdornment, 
   Typography, 
-  Popper,
   Modal,
   Stack,
-  Container,
   CircularProgress
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -34,7 +32,6 @@ const SearchForm: React.FC = () => {
   });
   const [searchResults, setSearchResults] = useState<Hotel[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
   
   const handleDateClick = (event: React.MouseEvent<HTMLElement>) => {
     // Toggle date picker visibility
@@ -70,7 +67,6 @@ const SearchForm: React.FC = () => {
   
   const handleSearch = async () => {
     setIsSearching(true);
-    setHasSearched(true);
     
     // Format dates for API call
     const fromDate = dateRange.startDate ? 
@@ -283,7 +279,7 @@ const SearchForm: React.FC = () => {
 
       {/* <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
         <input type="checkbox" id="flights" style={{ marginRight: '8px' }} />
-        <Typography component="label" htmlFor="flights" variant="body2">
+        <Typography htmlFor="flights" variant="body2">
           I'm looking for flights
         </Typography>
       </Box> */}
@@ -318,7 +314,7 @@ const SearchForm: React.FC = () => {
       {/* Search Results Section */}
       {searchResults.length > 0 && (
         <Box sx={{ mt: 4, width: '100%' }}>
-          <Typography variant="h5" component="h2" sx={{ mb: 2, fontWeight: 'bold' }}>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold' }}>
             Search Results
           </Typography>
           <Box>
