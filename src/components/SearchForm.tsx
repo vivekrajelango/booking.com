@@ -3,27 +3,21 @@ import {
   Paper, 
   Box, 
   TextField, 
-  InputAdornment,
-  Stack,
-  Typography,
+  Button, 
+  InputAdornment, 
+  Typography, 
   Popper,
-  ClickAwayListener,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Modal
+  Modal,
+  Stack
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
-import destinationsData from '../data/destinations.json';
+import SearchIcon from '@mui/icons-material/Search';
 import DatePicker from './DatePicker';
 import GuestsDropdown from './GuestsDropdown';
 
 const SearchForm: React.FC = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchValue, setSearchValue] = useState('');
   const [dateAnchorEl, setDateAnchorEl] = useState<null | HTMLElement>(null);
   const [dateRange, setDateRange] = useState<{startDate: Date | null; endDate: Date | null}>({startDate: null, endDate: null});
@@ -34,19 +28,10 @@ const SearchForm: React.FC = () => {
     rooms: 1
   });
   
-  const handleLocationClick = (event: React.MouseEvent<HTMLElement>) => {
-    setDateAnchorEl(null); // Close date picker if open
-    setAnchorEl(anchorEl ? null : event.currentTarget);
-  };
-
-  const handleClickAway = () => {
-    setAnchorEl(null);
-  };
-  
   const handleDateClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(null); // Close location dropdown if open
     // Toggle date picker visibility
     setDateRange(prev => ({...prev})); // Force re-render
+    setGuestsAnchorEl(null); // Close guests dropdown if open
     setDateAnchorEl(dateAnchorEl ? null : event.currentTarget);
   };
 
@@ -62,7 +47,6 @@ const SearchForm: React.FC = () => {
   };
 
   const handleGuestsClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(null); // Close location dropdown if open
     setDateAnchorEl(null); // Close date picker if open
     setGuestsAnchorEl(event.currentTarget);
   };
@@ -99,111 +83,68 @@ const SearchForm: React.FC = () => {
     return `${adults} ${adults === 1 ? 'adult' : 'adults'} · ${children} ${children === 1 ? 'child' : 'children'} · ${rooms} ${rooms === 1 ? 'room' : 'rooms'}`;
   };
 
-  const open = Boolean(anchorEl);
   const dateOpen = Boolean(dateAnchorEl);
   const guestsOpen = Boolean(guestsAnchorEl);
 
   return (
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 1 }}>
+    <Paper 
+      elevation={3} 
+      sx={{ 
+        p: { xs: 1, sm: 2 },
+        borderRadius: 2,
+        width: { xs: '95%', sm: '100%' },
+        maxWidth: '100%',
+        position: 'relative',
+        zIndex: 1,
+        overflow: 'hidden',
+        mx: 'auto'
+      }}
+    >
       <Stack 
-        direction={{ xs: 'column', md: 'row' }} 
-        spacing={2}
+        direction={{ xs: 'column', sm: 'row' }} 
+        spacing={{ xs: 1.5, sm: 1 }}
+        alignItems="stretch"
+        sx={{ width: '100%' }}
       >
-        <Box sx={{ flex: 1, position: 'relative' }}>
-          <ClickAwayListener onClickAway={handleClickAway}>
-            <div>
-              <TextField
-                fullWidth
-                placeholder="Where are you going?"
-                variant="outlined"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onClick={handleLocationClick}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocationOnIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Popper 
-                open={open} 
-                anchorEl={anchorEl}
-                placement="bottom-start"
-                style={{ 
-                  zIndex: 1000, 
-                  width: anchorEl?.offsetWidth,
-                  marginTop: '2px'
-                }}
-              >
-                <Paper 
-                  elevation={3} 
-                  sx={{ 
-                    width: '100%', 
-                    maxHeight: '300px', 
-                    overflow: 'auto',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: 1,
-                    bgcolor: 'white'
-                  }}
-                >
-                  <Typography 
-                    sx={{ 
-                      p: 1.5, 
-                      fontWeight: 'bold',
-                      borderBottom: '1px solid #f0f0f0',
-                      fontSize: '14px'
-                    }}
-                  >
-                    Trending destinations
-                  </Typography>
-                  <List sx={{ p: 0 }}>
-                    {destinationsData.trendingDestinations.map((destination) => (
-                      <ListItem 
-                        key={destination.id}
-                        button
-                        onClick={() => {
-                          setSearchValue(destination.city);
-                          setAnchorEl(null);
-                        }}
-                        sx={{ 
-                          py: 1,
-                          '&:hover': { bgcolor: '#f5f5f5' }
-                        }}
-                      >
-                        <ListItemIcon sx={{ minWidth: '40px' }}>
-                          <LocationOnIcon sx={{ color: '#71767b', fontSize: '20px' }} />
-                        </ListItemIcon>
-                        <ListItemText 
-                          primary={destination.city}
-                          secondary={destination.country}
-                          primaryTypographyProps={{ 
-                            fontWeight: 'medium',
-                            fontSize: '14px'
-                          }}
-                          secondaryTypographyProps={{
-                            fontSize: '12px',
-                            color: '#71767b'
-                          }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Paper>
-              </Popper>
-            </div>
-          </ClickAwayListener>
-        </Box>
-        
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, position: 'relative', width: '100%' }}>
           <TextField
             fullWidth
             variant="outlined"
+            size="small"
+            placeholder="Search Hotel or Location"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '4px',
+                height: { xs: '40px', sm: 'auto' }
+              }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <CalendarTodayIcon color="action" />
+                  <LocationOnIcon color="action" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+                </InputAdornment>
+              )
+            }}
+          />
+        </Box>
+        
+        <Box sx={{ flex: 1, position: 'relative', width: '100%' }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            size="small"
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '4px',
+                height: { xs: '40px', sm: 'auto' }
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CalendarMonthIcon color="action" />
                 </InputAdornment>
               ),
               readOnly: true,
@@ -243,10 +184,17 @@ const SearchForm: React.FC = () => {
           </Modal>
         </Box>
 
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, position: 'relative', width: '100%' }}>
           <TextField
             fullWidth
             variant="outlined"
+            size="small"
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '4px',
+                height: { xs: '40px', sm: 'auto' }
+              }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -260,22 +208,34 @@ const SearchForm: React.FC = () => {
           />
         </Box>
 
-        <Box>
-          <Box 
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: { xs: 'center', sm: 'flex-start' },
+            width: { xs: '100%', sm: 'auto' },
+            mt: { xs: 1, sm: 0 }
+          }}
+        >
+          <Box
             component="button"
             sx={{
-              bgcolor: '#0071c2',
+              backgroundColor: 'primary.main',
               color: 'white',
-              fontWeight: 'bold',
-              py: 1.5,
-              px: 4,
               border: 'none',
-              borderRadius: 1,
+              borderRadius: '8px',
+              padding: { xs: '8px 16px', sm: '16px 24px' },
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+              fontWeight: 'bold',
               cursor: 'pointer',
-              width: { xs: '100%', md: 'auto' },
+              height: { xs: '40px', sm: '56px' },
+              width: { xs: '100%', sm: 'auto' },
               '&:hover': {
-                bgcolor: '#005999'
-              }
+                backgroundColor: 'primary.dark',
+              },
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             Search
@@ -304,7 +264,8 @@ const SearchForm: React.FC = () => {
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          mt: 10
+          mt: { xs: 2, sm: 10 },
+          p: { xs: 1, sm: 0 }
         }}
       >
         <GuestsDropdown 

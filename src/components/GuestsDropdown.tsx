@@ -21,7 +21,6 @@ const GuestsDropdown: React.FC<GuestsDropdownProps> = ({
   const [adults, setAdults] = useState(initialAdults);
   const [children, setChildren] = useState(initialChildren);
   const [rooms, setRooms] = useState(initialRooms);
-  const [travelingWithPets, setTravelingWithPets] = useState(false);
 
   const handleIncrement = (type: 'adults' | 'children' | 'rooms') => {
     if (type === 'adults') {
@@ -50,11 +49,13 @@ const GuestsDropdown: React.FC<GuestsDropdownProps> = ({
 
   return (
     <Box sx={{ 
-      width: '320px', 
+      width: { xs: '100%', sm: 320 }, 
       backgroundColor: 'white', 
-      borderRadius: '8px',
+      borderRadius: '8px', 
       boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-      p: 2
+      p: { xs: 1, sm: 2 },
+      maxHeight: { xs: '80vh', sm: 'auto' },
+      overflowY: 'auto'
     }}>
       {/* Adults */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -124,61 +125,7 @@ const GuestsDropdown: React.FC<GuestsDropdownProps> = ({
         </Box>
       </Box>
 
-      {/* Rooms */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="body1">Rooms</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton 
-            size="small" 
-            onClick={() => handleDecrement('rooms')}
-            disabled={rooms <= 1}
-            sx={{ 
-              border: '1px solid #ccc', 
-              borderRadius: '4px',
-              p: 0.5,
-              color: rooms <= 1 ? '#ccc' : '#333'
-            }}
-          >
-            <RemoveIcon fontSize="small" />
-          </IconButton>
-          <Typography sx={{ mx: 2, minWidth: '20px', textAlign: 'center' }}>{rooms}</Typography>
-          <IconButton 
-            size="small" 
-            onClick={() => handleIncrement('rooms')}
-            disabled={rooms >= 30}
-            sx={{ 
-              border: '1px solid #ccc', 
-              borderRadius: '4px',
-              p: 0.5,
-              color: rooms >= 30 ? '#ccc' : '#333'
-            }}
-          >
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      </Box>
-
       <Divider sx={{ my: 2 }} />
-
-      {/* Traveling with pets */}
-      <Box sx={{ mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body1">Travelling with pets?</Typography>
-          <Switch 
-            checked={travelingWithPets}
-            onChange={(e) => setTravelingWithPets(e.target.checked)}
-            color="primary"
-          />
-        </Box>
-        {travelingWithPets && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Assistance animals aren't considered pets.
-            <Box component="span" sx={{ color: '#006ce4', ml: 0.5, cursor: 'pointer' }}>
-              Read more about travelling with assistance animals
-            </Box>
-          </Typography>
-        )}
-      </Box>
 
       {/* Done button */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>

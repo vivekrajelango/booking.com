@@ -4,11 +4,7 @@ import {
   Paper, 
   Typography, 
   Grid,
-  Button,
-  Popper,
-  ClickAwayListener,
-  FormControlLabel,
-  Checkbox
+  Button
 } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -25,7 +21,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
   selectedEndDate 
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [isFlexible, setIsFlexible] = useState(false);
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
 
   // Initialize with current month
@@ -172,10 +167,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
 
   return (
     <Paper elevation={0} sx={{ 
-      width: '660px', 
+      width: { xs: '100%', sm: '660px' }, 
       borderRadius: '8px', 
       overflow: 'hidden',
-      boxShadow: 'none'
+      boxShadow: 'none',
+      maxHeight: { xs: '80vh', sm: 'auto' }
     }}>
       {/* Calendar Header */}
       <Box sx={{ 
@@ -213,24 +209,31 @@ const DatePicker: React.FC<DatePickerProps> = ({
       </Box>
 
       {/* Calendar Body */}
-      <Box sx={{ px: 1.5, pb: 1.5 }}>
-        {/* Weekday Headers */}
-        <Grid container sx={{ mb: 0.5 }}>
-          {weekdays.map((day, index) => (
-            <Grid item key={index} sx={{ width: `${100/7}%` }}>
-              <Typography 
-                align="center" 
-                sx={{ 
-                  fontSize: '0.75rem', 
-                  color: '#6b6b6b',
-                  fontWeight: 'medium'
-                }}
-              >
-                {day}
-              </Typography>
-            </Grid>
-          ))}
-        </Grid>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between',
+        width: '100%'
+      }}>
+        {/* First Month Calendar */}
+        <Box sx={{ width: { xs: '100%', sm: '48%' }, px: 1.5, pb: 1.5 }}>
+          {/* Weekday Headers */}
+          <Grid container sx={{ mb: 0.5 }}>
+            {weekdays.map((day, index) => (
+              <Grid item key={index} sx={{ width: `${100/7}%` }}>
+                <Typography 
+                  align="center" 
+                  sx={{ 
+                    fontSize: '0.75rem', 
+                    color: '#6b6b6b',
+                    fontWeight: 'medium'
+                  }}
+                >
+                  {day}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
         
         {/* Calendar Days */}
         <Grid container>
@@ -252,15 +255,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
                   justifyContent: 'center',
                   cursor: isDisabled(day.date) ? 'default' : 'pointer',
                   borderRadius: isRangeStart(day.date) || isRangeEnd(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   borderTopLeftRadius: isRangeStart(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
-                  borderBottomLeftRadius: isRangeStart(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   borderTopRightRadius: isRangeEnd(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
+                  borderBottomLeftRadius: isRangeStart(day.date) ? '50%' : 
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   borderBottomRightRadius: isRangeEnd(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   backgroundColor: 
                     isRangeStart(day.date) || isRangeEnd(day.date)
                       ? '#006ce4'
@@ -296,6 +299,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
             </Grid>
           ))}
         </Grid>
+      </Box>
       </Box>
 
       {/* Second Month */}
@@ -351,15 +355,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
                   justifyContent: 'center',
                   cursor: isDisabled(day.date) ? 'default' : 'pointer',
                   borderRadius: isRangeStart(day.date) || isRangeEnd(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   borderTopLeftRadius: isRangeStart(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
-                  borderBottomLeftRadius: isRangeStart(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   borderTopRightRadius: isRangeEnd(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
+                  borderBottomLeftRadius: isRangeStart(day.date) ? '50%' : 
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   borderBottomRightRadius: isRangeEnd(day.date) ? '50%' : 
-                    isInRange(day.date) || isInHoverRange(day.date) ? '0' : '50%',
+                    (isInRange(day.date) || isInHoverRange(day.date) ? 0 : '50%'),
                   backgroundColor: 
                     isRangeStart(day.date) || isRangeEnd(day.date)
                       ? '#006ce4'
@@ -488,6 +492,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
       </Box>
     </Paper>
   );
-};
+}
 
 export default DatePicker;
