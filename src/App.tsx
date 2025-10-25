@@ -6,26 +6,29 @@ import SignIn from './components/SignIn'
 import SignUp from './components/SignUp'
 import AvailabilityPage from './components/AvailabilityPage'
 import { Routes, Route } from 'react-router-dom'
+import { SearchProvider } from './context/SearchContext'
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Hero />
-              <SearchForm />
-            </>
-          }
-        />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/availability" element={<AvailabilityPage />} />
-      </Routes>
-    </div>
+    <SearchProvider>
+      <div className="min-h-screen">
+        <Navbar />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <SearchForm />
+              </>
+            }
+          />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/availability" element={<AvailabilityPage />} />
+        </Routes>
+      </div>
+    </SearchProvider>
   )
 }
 

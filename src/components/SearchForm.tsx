@@ -5,11 +5,11 @@ import {
   TextField, 
   Button, 
   InputAdornment, 
-  Typography, 
   Modal,
   Stack,
   CircularProgress
 } from '@mui/material';
+import { useSearch } from '../context/SearchContext';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
@@ -18,24 +18,16 @@ import DatePicker from './DatePicker';
 import GuestsDropdown from './GuestsDropdown';
 import HotelCard from './HotelCard';
 import { searchHotels } from '../services/api';
-import type { Hotel, SearchParams } from '../services/api';
+import type { SearchParams } from '../services/api';
 
 const SearchForm: React.FC = () => {
-  const [searchValue, setSearchValue] = useState('');
+  const { searchState, setSearchState } = useSearch();
   const [dateAnchorEl, setDateAnchorEl] = useState<null | HTMLElement>(null);
-  const [dateRange, setDateRange] = useState<{startDate: Date | null; endDate: Date | null}>({startDate: null, endDate: null});
   const [guestsAnchorEl, setGuestsAnchorEl] = useState<null | HTMLElement>(null);
-  const [guestInfo, setGuestInfo] = useState({
-    adults: 2,
-    children: 0,
-    rooms: 1
-  });
-  const [searchResults, setSearchResults] = useState<Hotel[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   
   const handleDateClick = (event: React.MouseEvent<HTMLElement>) => {
     // Toggle date picker visibility
-    setDateRange(prev => ({...prev})); // Force re-render
     setGuestsAnchorEl(null); // Close guests dropdown if open
     setDateAnchorEl(dateAnchorEl ? null : event.currentTarget);
   };
@@ -45,7 +37,10 @@ const SearchForm: React.FC = () => {
   };
 
   const handleDateSelect = (startDate: Date | null, endDate: Date | null) => {
-    setDateRange({ startDate, endDate });
+    setSearchState(prev => ({
+      ...prev,
+      dateRange: { startDate, endDate }
+    }));
     if (startDate && endDate) {
       setDateAnchorEl(null);
     }
@@ -61,15 +56,18 @@ const SearchForm: React.FC = () => {
   };
 
   const handleGuestsSelect = (adults: number, children: number, rooms: number) => {
-    setGuestInfo({ adults, children, rooms });
+    setSearchState(prev => ({
+      ...prev,
+      guestInfo: { adults, children, rooms }
+    }));
     setGuestsAnchorEl(null);
   };
   
   const isFormValid = () => {
     return (
-      searchValue.trim() !== '' && 
-      dateRange.startDate !== null && 
-      dateRange.endDate !== null
+      searchState.searchValue.trim() !== '' && 
+      searchState.dateRange.startDate !== null && 
+      searchState.dateRange.endDate !== null
     );
   };
 
@@ -86,27 +84,30 @@ const SearchForm: React.FC = () => {
       return `${year}-${month}-${day}`;
     };
 
-    const fromDate = formatDateToLocalISOString(dateRange.startDate!);
-    const toDate = formatDateToLocalISOString(dateRange.endDate!);
+    const fromDate = formatDateToLocalISOString(searchState.dateRange.startDate!);
+    const toDate = formatDateToLocalISOString(searchState.dateRange.endDate!);
     
     const searchParams: SearchParams = {
-      query: searchValue,
+      query: searchState.searchValue,
       from: fromDate,
       to: toDate,
-      adults: guestInfo.adults,
-      children: guestInfo.children
+      adults: searchState.guestInfo.adults,
+      children: searchState.guestInfo.children
     };
 
     // Update URL with search parameters
     const urlSearchParams = new URLSearchParams();
     urlSearchParams.set('checkIn', fromDate);
     urlSearchParams.set('checkOut', toDate);
-    urlSearchParams.set('guests', String(guestInfo.adults + guestInfo.children));
+    urlSearchParams.set('guests', String(searchState.guestInfo.adults + searchState.guestInfo.children));
     window.history.replaceState(null, '', `?${urlSearchParams.toString()}`);
     
     try {
       const results = await searchHotels(searchParams);
-      setSearchResults(results);
+      setSearchState(prev => ({
+        ...prev,
+        searchResults: results
+      }));
       // Close any open dropdowns
       setDateAnchorEl(null);
       setGuestsAnchorEl(null);
@@ -118,7 +119,7 @@ const SearchForm: React.FC = () => {
   };
 
   const formatDateRange = () => {
-    if (!dateRange.startDate && !dateRange.endDate) return 'Check-in date — Check-out date';
+    if (!searchState.dateRange.startDate && !searchState.dateRange.endDate) return 'Check-in date — Check-out date';
     
     const formatDate = (date: Date | null) => {
       if (!date) return '';
@@ -128,15 +129,15 @@ const SearchForm: React.FC = () => {
       }).format(date);
     };
     
-    if (dateRange.startDate && dateRange.endDate) {
-      return `${formatDate(dateRange.startDate)} — ${formatDate(dateRange.endDate)}`;
+    if (searchState.dateRange.startDate && searchState.dateRange.endDate) {
+      return `${formatDate(searchState.dateRange.startDate)} — ${formatDate(searchState.dateRange.endDate)}`;
     }
     
-    return dateRange.startDate ? `${formatDate(dateRange.startDate)} — Check-out date` : 'Check-in date — Check-out date';
+    return searchState.dateRange.startDate ? `${formatDate(searchState.dateRange.startDate)} — Check-out date` : 'Check-in date — Check-out date';
   };
 
   const formatGuestInfo = () => {
-    const { adults, children, rooms } = guestInfo;
+    const { adults, children, rooms } = searchState.guestInfo;
     return `${adults} ${adults === 1 ? 'adult' : 'adults'} · ${children} ${children === 1 ? 'child' : 'children'} · ${rooms} ${rooms === 1 ? 'room' : 'rooms'}`;
   };
 
@@ -169,8 +170,8 @@ const SearchForm: React.FC = () => {
             variant="outlined"
             size="small"
             placeholder="Search Hotel or Location"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchState.searchValue}
+            onChange={(e) => setSearchState(prev => ({ ...prev, searchValue: e.target.value }))}
             required
             sx={{ 
               '& .MuiOutlinedInput-root': {
@@ -236,8 +237,8 @@ const SearchForm: React.FC = () => {
             >
               <DatePicker 
                 onSelectDate={handleDateSelect} 
-                selectedStartDate={dateRange.startDate} 
-                selectedEndDate={dateRange.endDate} 
+                selectedStartDate={searchState.dateRange.startDate} 
+                selectedEndDate={searchState.dateRange.endDate} 
               />
             </Box>
           </Modal>
@@ -330,17 +331,17 @@ const SearchForm: React.FC = () => {
         <GuestsDropdown 
           onClose={handleGuestsClose}
           onApply={handleGuestsSelect}
-          initialAdults={guestInfo.adults}
-          initialChildren={guestInfo.children}
-          initialRooms={guestInfo.rooms}
+          initialAdults={searchState.guestInfo.adults}
+          initialChildren={searchState.guestInfo.children}
+          initialRooms={searchState.guestInfo.rooms}
         />
       </Modal>
       
       {/* Search Results Section */}
-      {searchResults.length > 0 && (
+      {searchState.searchResults.length > 0 && (
         <Box sx={{ mt: 4, width: '100%' }}>
           <Box>
-            {searchResults.map((hotel) => (
+            {searchState.searchResults.map((hotel) => (
               <HotelCard key={hotel.hotelId} hotel={hotel} />
             ))}
           </Box>

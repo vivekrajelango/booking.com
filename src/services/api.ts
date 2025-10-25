@@ -101,17 +101,6 @@ export const getHotelById = async (
   }
 };
 
-/**
- * Calculate days between two dates
- */
-function getDaysBetween(startDate: string, endDate: string): number {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const diffTime = Math.abs(end.getTime() - start.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-}
-
 // Real API call to search hotels
 export const searchHotels = async (params: SearchParams): Promise<Hotel[]> => {
   console.log('Searching hotels with params:', params);

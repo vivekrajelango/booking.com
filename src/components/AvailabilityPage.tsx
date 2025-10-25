@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSearch } from '../context/SearchContext';
 import { getHotelById } from '../services/api';
 import type { HotelDetails as ApiHotelDetails } from '../services/api';
 import {
   Container,
   Box,
   Typography,
-  Grid,
+
   Card,
   CardContent,
   CardMedia,
@@ -30,7 +31,7 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
 import PoolIcon from '@mui/icons-material/Pool';
 
-const facilityIcons: { [key: string]: React.ReactNode } = {
+const facilityIcons: { [key: string]: React.ReactElement } = {
   'Free Wi-Fi': <WifiIcon />,
   'On-site Parking': <LocalParkingIcon />,
   'Restaurant & Bar': <RestaurantIcon />,
@@ -51,11 +52,21 @@ interface LocationState {
 
 const AvailabilityPage: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { searchState } = useSearch();
   const state = location.state as LocationState;
 
   const [hotelDetails, setHotelDetails] = useState<ApiHotelDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBack = () => {
+    if (searchState.searchResults.length > 0) {
+      navigate('/');
+    } else {
+      window.history.back();
+    }
+  };
 
   useEffect(() => {
     const fetchHotelDetails = async () => {
@@ -105,7 +116,7 @@ const AvailabilityPage: React.FC = () => {
         <Button
           variant="text"
           color="primary"
-          onClick={() => window.history.back()}
+          onClick={handleBack}
           startIcon={<ArrowBackIcon />}
           sx={{ 
             textTransform: 'none',
@@ -177,18 +188,26 @@ const AvailabilityPage: React.FC = () => {
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
           Popular Facilities
         </Typography>
-        <Grid container spacing={2}>
+        <Box sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: '1fr 1fr',
+            md: '1fr 1fr 1fr',
+            lg: '1fr 1fr 1fr 1fr'
+          },
+          gap: 2
+        }}>
           {hotelDetails.facilities.map((facility, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-              <Chip
-                icon={facilityIcons[facility]}
-                label={facility}
-                variant="outlined"
-                sx={{ borderRadius: 1 }}
-              />
-            </Grid>
+            <Chip
+              key={index}
+              icon={facilityIcons[facility]}
+              label={facility}
+              variant="outlined"
+              sx={{ borderRadius: 1 }}
+            />
           ))}
-        </Grid>
+        </Box>
       </Box>
 
       <Divider sx={{ mb: 6 }} />
@@ -197,148 +216,87 @@ const AvailabilityPage: React.FC = () => {
       <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold' }}>
         Available Rooms
       </Typography>
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
         {hotelDetails.rooms.map((room, index) => (
-          <Grid item xs={12} md={6} key={index}>
-            <Card sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={room.images[0]}
-                  alt={room.roomTypeName}
-                  sx={{ objectFit: 'cover' }}
-                />
-                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="h6" gutterBottom>
-                    {room.roomTypeName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Max guests: {room.maximumGuests} • {room.info}
-                  </Typography>
-                  
-                  {/* Bed Configuration */}
-                  <Typography variant="subtitle2" gutterBottom>
-                    Bed Options:
-                  </Typography>
-                  {room.beds.map((bed, idx) => (
-                    <Typography key={idx} variant="body2">
-                      {bed.bedCount}x {bed.bedTypeName}
-                    </Typography>
-                  ))}
-
-                  {/* Room Facilities */}
-                  <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', gap: 1 }}>
-                    {room.facilities.map((facility, idx) => (
-                      <Chip
-                        key={idx}
-                        label={facility}
-                        size="small"
-                        variant="outlined"
-                      />
-                    ))}
-                  </Stack>
-
-                  {/* Price and Availability */}
-                  <Box sx={{ mt: 'auto', pt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography variant="h6" color="primary">
-                        ${room.baseRate.toFixed(2)}
-                      </Typography>
-                      <Typography variant="caption">per night</Typography>
-                    </Box>
-                    <Button variant="contained" color="primary">
-                      Reserve
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <CardContent sx={{ flex: '1 0 auto', p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-                  {room.roomTypeName}
+          <Card key={index} sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardMedia
+              component="img"
+              height="200"
+              image={room.images[0]}
+              alt={room.roomTypeName}
+              sx={{ objectFit: 'cover' }}
+            />
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+              <Typography variant="h6" gutterBottom>
+                {room.roomTypeName}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Max guests: {room.maximumGuests} • {room.info}
+              </Typography>
+              
+              {/* Bed Configuration */}
+              <Typography variant="subtitle2" gutterBottom>
+                Bed Options:
+              </Typography>
+              {room.beds.map((bed, idx) => (
+                <Typography key={idx} variant="body2">
+                  {bed.bedCount}x {bed.bedTypeName}
                 </Typography>
-                
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Room facilities:
-                  </Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                    {room.facilities.map((facility, index) => (
-                      <Chip
-                        key={index}
-                        label={facility}
-                        size="small"
-                        variant="outlined"
-                        sx={{ mb: 1 }}
-                      />
-                    ))}
-                  </Stack>
-                </Box>
+              ))}
 
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Bed options:
-                  </Typography>
-                  {room.beds.map((bed, index) => (
-                    <Typography key={index} variant="body2">
-                      {bed.bedCount}x {bed.bedTypeName}
-                    </Typography>
-                  ))}
-                </Box>
+              {/* Room Facilities */}
+              <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', gap: 1 }}>
+                {room.facilities.map((facility, idx) => (
+                  <Chip
+                    key={idx}
+                    label={facility}
+                    size="small"
+                    variant="outlined"
+                  />
+                ))}
+              </Stack>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mt: 2 }}>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Price per night
-                    </Typography>
-                    <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                      £{room.baseRate.toFixed(2)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Includes taxes and charges
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    sx={{
-                      textTransform: 'none',
-                      minWidth: 200,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Reserve
-                  </Button>
+              {/* Price and Availability */}
+              <Box sx={{ mt: 'auto', pt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box>
+                  <Typography variant="h6" color="primary">
+                    ${room.baseRate.toFixed(2)}
+                  </Typography>
+                  <Typography variant="caption">per night</Typography>
                 </Box>
-              </CardContent>
-            </Box>
-          </Grid>
+                <Button variant="contained" color="primary">
+                  Reserve
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
         ))}
-      </Grid>
+      </Box>
 
       {/* Reviews Section */}
       <Box sx={{ mt: 6 }}>
         <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold' }}>
           Guest Reviews
         </Typography>
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
           {hotelDetails.reviews.map((review, index) => (
-            <Grid item xs={12} md={6} key={index}>
-              <Card sx={{ width: '100%' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Card key={index}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box>
                     <Typography variant="subtitle2">
                       {new Date(review.createdAt).toLocaleDateString()}
                     </Typography>
+                  </Box>
+                  <Box sx={{ ml: 'auto' }}>
                     <Rating value={review.rating / 2} precision={0.5} readOnly size="small" />
                   </Box>
-                  <Typography variant="body2">{review.comment}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+                </Box>
+                <Typography variant="body2">{review.comment}</Typography>
+              </CardContent>
+            </Card>
           ))}
-        </Grid>
+        </Box>
       </Box>
     </Container>
   );
