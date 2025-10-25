@@ -1,11 +1,35 @@
 // Hotel search API service
 
+export interface Bed {
+  bedTypeName: string;
+  bedCount: number;
+}
+
+export interface Availability {
+  date: string;
+  availableCount: number;
+}
+
 export interface RoomCategory {
   roomCategoryId: string;
   roomTypeName: string;
   maximumGuests: number;
   baseRate: number;
   info: string;
+}
+
+export interface Room extends RoomCategory {
+  images: string[];
+  facilities: string[];
+  beds: Bed[];
+  availability: Availability[];
+}
+
+export interface Review {
+  rating: number;
+  comment: string;
+  createdAt: string;
+  authorName: string;
 }
 
 export interface Hotel {
@@ -22,6 +46,12 @@ export interface Hotel {
   roomCategories: RoomCategory[];
 }
 
+export interface HotelDetails extends Omit<Hotel, 'roomCategories'> {
+  facilities: string[];
+  rooms: Room[];
+  reviews: Review[];
+}
+
 export interface ApiResponse {
   data: Hotel[];
 }
@@ -36,6 +66,40 @@ export interface SearchParams {
 
 // API configuration
 const API_BASE_URL = 'https://c11f23fb4819.ngrok-free.app/api';
+
+// Fetch hotel details
+export const getHotelDetails = async (
+  hotelId: string,
+  checkIn: string,
+  checkOut: string,
+  guests: string
+): Promise<HotelDetails> => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/hotels/${hotelId}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': '1',
+          'Origin': window.location.origin,
+        },
+        mode: 'cors',
+        credentials: 'omit'
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: HotelDetails = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching hotel details:', error);
+    throw error;
+  }
+};
 
 /**
  * Calculate days between two dates

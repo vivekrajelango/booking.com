@@ -332,9 +332,6 @@ const SearchForm: React.FC = () => {
       {/* Search Results Section */}
       {searchResults.length > 0 && (
         <Box sx={{ mt: 4, width: '100%' }}>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold' }}>
-            Search Results
-          </Typography>
           <Box>
             {searchResults.map((hotel) => (
               <HotelCard key={hotel.hotelId} hotel={hotel} />
