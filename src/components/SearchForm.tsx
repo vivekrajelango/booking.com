@@ -96,6 +96,13 @@ const SearchForm: React.FC = () => {
       adults: guestInfo.adults,
       children: guestInfo.children
     };
+
+    // Update URL with search parameters
+    const urlSearchParams = new URLSearchParams();
+    urlSearchParams.set('checkIn', fromDate);
+    urlSearchParams.set('checkOut', toDate);
+    urlSearchParams.set('guests', String(guestInfo.adults + guestInfo.children));
+    window.history.replaceState(null, '', `?${urlSearchParams.toString()}`);
     
     try {
       const results = await searchHotels(searchParams);

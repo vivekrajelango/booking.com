@@ -17,14 +17,21 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
   );
 
   const handleSeeAvailability = () => {
-    // Get the current search parameters from the URL
+    // Get the current URL search params
     const searchParams = new URLSearchParams(window.location.search);
-    const checkIn = searchParams.get('checkIn') || '';
-    const checkOut = searchParams.get('checkOut') || '';
-    const guests = searchParams.get('guests') || '';
+    const checkIn = searchParams.get('checkIn');
+    const checkOut = searchParams.get('checkOut');
+    const guests = searchParams.get('guests');
 
-    // Navigate to the availability page with the required parameters
-    navigate(`/availability?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+    // Navigate to the availability page and pass data as state
+    navigate('/availability', {
+      state: {
+        hotelId: hotel.hotelId,
+        checkIn,
+        checkOut,
+        guests
+      }
+    });
   };
 
   return (

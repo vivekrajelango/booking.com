@@ -65,10 +65,10 @@ export interface SearchParams {
 }
 
 // API configuration
-const API_BASE_URL = 'https://c11f23fb4819.ngrok-free.app/api';
+export const API_BASE_URL = '/api';
 
 // Fetch hotel details
-export const getHotelDetails = async (
+export const getHotelById = async (
   hotelId: string,
   checkIn: string,
   checkOut: string,
