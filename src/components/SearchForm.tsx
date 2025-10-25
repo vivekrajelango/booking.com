@@ -65,20 +65,32 @@ const SearchForm: React.FC = () => {
     setGuestsAnchorEl(null);
   };
   
+  const isFormValid = () => {
+    return (
+      searchValue.trim() !== '' && 
+      dateRange.startDate !== null && 
+      dateRange.endDate !== null
+    );
+  };
+
   const handleSearch = async () => {
+    if (!isFormValid()) return;
+    
     setIsSearching(true);
     
-    // Format dates for API call
-    const fromDate = dateRange.startDate ? 
-      dateRange.startDate.toISOString().split('T')[0] : 
-      '2025-10-25'; // Default date if none selected
-      
-    const toDate = dateRange.endDate ? 
-      dateRange.endDate.toISOString().split('T')[0] : 
-      '2025-10-27'; // Default date if none selected
+    // Format dates for API call with timezone handling
+    const formatDateToLocalISOString = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const fromDate = formatDateToLocalISOString(dateRange.startDate!);
+    const toDate = formatDateToLocalISOString(dateRange.endDate!);
     
     const searchParams: SearchParams = {
-      query: searchValue || 'Ocean',
+      query: searchValue,
       from: fromDate,
       to: toDate,
       adults: guestInfo.adults,
@@ -152,6 +164,7 @@ const SearchForm: React.FC = () => {
             placeholder="Search Hotel or Location"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
+            required
             sx={{ 
               '& .MuiOutlinedInput-root': {
                 borderRadius: '4px',
@@ -173,6 +186,7 @@ const SearchForm: React.FC = () => {
             fullWidth
             variant="outlined"
             size="small"
+            required
             sx={{ 
               '& .MuiOutlinedInput-root': {
                 borderRadius: '4px',
@@ -261,7 +275,7 @@ const SearchForm: React.FC = () => {
             size="large"
             startIcon={<SearchIcon />}
             onClick={handleSearch}
-            disabled={isSearching}
+            disabled={isSearching || !isFormValid()}
             sx={{ 
               height: { xs: '40px', sm: '56px' },
               borderRadius: '8px',
@@ -269,7 +283,11 @@ const SearchForm: React.FC = () => {
               fontSize: { xs: '0.875rem', sm: '1rem' },
               textTransform: 'none',
               boxShadow: 2,
-              width: { xs: '100%', sm: 'auto' }
+              width: { xs: '100%', sm: 'auto' },
+              '&.Mui-disabled': {
+                backgroundColor: '#ccc',
+                color: '#666'
+              }
             }}
           >
             {isSearching ? <CircularProgress size={24} color="inherit" /> : 'Search'}

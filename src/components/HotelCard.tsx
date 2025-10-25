@@ -8,6 +8,11 @@ interface HotelCardProps {
 }
 
 const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
+  // Get the cheapest room rate for display
+  const cheapestRoom = hotel.roomCategories.reduce((min, room) => 
+    room.baseRate < min.baseRate ? room : min
+  );
+
   return (
     <Card sx={{ 
       display: 'flex', 
@@ -23,8 +28,8 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
           height: { xs: 200, sm: 200 },
           objectFit: 'cover'
         }}
-        image={hotel.thumbnailUrl || 'https://via.placeholder.com/300x200?text=Hotel+Image'}
-        alt={hotel.name}
+        image={hotel.imageUrl || 'https://via.placeholder.com/300x200?text=Hotel+Image'}
+        alt={hotel.hotelName}
       />
       <Box sx={{ 
         display: 'flex', 
@@ -34,17 +39,25 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
       }}>
         <CardContent sx={{ flex: '1 0 auto' }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-            {hotel.name}
+            {hotel.hotelName}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <LocationOnIcon color="action" sx={{ fontSize: '1rem', mr: 0.5 }} />
             <Typography variant="body2" color="text.secondary">
-              {hotel.location}, {hotel.city}
+              {hotel.addressLine}, {hotel.city}, {hotel.country}
             </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {hotel.info}
-          </Typography>
+          {/* <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            {hotel.comment}
+          </Typography> */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', mr: 1 }}>
+              {hotel.averageRating}/10
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ({hotel.totalReviews} reviews)
+            </Typography>
+          </Box>
         </CardContent>
         <Box sx={{ 
           display: 'flex', 
@@ -54,10 +67,10 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
         }}>
           <Box>
             <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-              ${hotel.price}
+              ${cheapestRoom.baseRate.toFixed(2)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Total price
+              {cheapestRoom.info}
             </Typography>
           </Box>
           <Button 
