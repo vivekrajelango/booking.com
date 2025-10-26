@@ -264,7 +264,37 @@ const AvailabilityPage: React.FC = () => {
                   </Typography>
                   <Typography variant="caption">per night</Typography>
                 </Box>
-                <Button variant="contained" color="primary">
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={() => navigate('/checkout', {
+                    state: {
+                      hotelInfo: {
+                        hotelId: hotelDetails.hotelId,
+                        hotelName: hotelDetails.hotelName,
+                        location: `${hotelDetails.addressLine}, ${hotelDetails.city}, ${hotelDetails.country}`,
+                        rating: hotelDetails.rating,
+                        totalReviews: hotelDetails.reviews.length,
+                        image: hotelDetails.images[0]
+                      },
+                      bookingDates: {
+                        checkIn: {
+                          date: state.checkIn,
+                          time: '15:00'
+                        },
+                        checkOut: {
+                          date: state.checkOut,
+                          time: '11:00'
+                        }
+                      },
+                      roomInfo: {
+                        roomType: room.roomTypeName,
+                        guests: state.guests,
+                        price: room.baseRate
+                      }
+                    }
+                  })}
+                >
                   Reserve
                 </Button>
               </Box>
