@@ -13,11 +13,12 @@ import {
   Divider,
   MenuItem,
   Paper,
-  Grid,
   CircularProgress
 } from '@mui/material';
+import { Row, Col } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { dummyBookingDetails } from '../data/checkoutData';
-import type { BookingDetails, CheckoutFormData } from '../types/checkout';
+import type { CheckoutFormData } from '../types/checkout';
 import { countries } from '../data/countries';
 
 const CheckoutPage: React.FC = () => {
@@ -34,7 +35,7 @@ const CheckoutPage: React.FC = () => {
     phone: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -78,8 +79,8 @@ const CheckoutPage: React.FC = () => {
               Almost done! Just fill in the * required info
             </Typography>
             <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+              <Row className="g-3">
+                <Col xs={12} sm={6}>
                   <TextField
                     required
                     fullWidth
@@ -88,8 +89,8 @@ const CheckoutPage: React.FC = () => {
                     value={formData.firstName}
                     onChange={handleInputChange}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Col>
+                <Col xs={12} sm={6}>
                   <TextField
                     required
                     fullWidth
@@ -98,8 +99,8 @@ const CheckoutPage: React.FC = () => {
                     value={formData.lastName}
                     onChange={handleInputChange}
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Col>
+                <Col xs={12}>
                   <TextField
                     required
                     fullWidth
@@ -110,8 +111,8 @@ const CheckoutPage: React.FC = () => {
                     onChange={handleInputChange}
                     helperText="Confirmation email goes to this address"
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Col>
+                <Col xs={12}>
                   <TextField
                     required
                     fullWidth
@@ -120,8 +121,8 @@ const CheckoutPage: React.FC = () => {
                     value={formData.address}
                     onChange={handleInputChange}
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Col>
+                <Col xs={12}>
                   <TextField
                     required
                     fullWidth
@@ -130,8 +131,8 @@ const CheckoutPage: React.FC = () => {
                     value={formData.city}
                     onChange={handleInputChange}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Col>
+                <Col xs={12} sm={6}>
                   <TextField
                     fullWidth
                     label="Zip/post code (optional)"
@@ -139,8 +140,8 @@ const CheckoutPage: React.FC = () => {
                     value={formData.zipCode}
                     onChange={handleInputChange}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                </Col>
+                <Col xs={12} sm={6}>
                   <TextField
                     required
                     fullWidth
@@ -156,8 +157,8 @@ const CheckoutPage: React.FC = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                </Grid>
-                <Grid item xs={12}>
+                </Col>
+                <Col xs={12}>
                   <TextField
                     required
                     fullWidth
@@ -166,8 +167,8 @@ const CheckoutPage: React.FC = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                   />
-                </Grid>
-                <Grid item xs={12}>
+                </Col>
+                <Col xs={12}>
                   <Button
                     type="submit"
                     variant="contained"
@@ -182,8 +183,8 @@ const CheckoutPage: React.FC = () => {
                       'Complete Booking'
                     )}
                   </Button>
-                </Grid>
-              </Grid>
+                </Col>
+              </Row>
             </form>
           </Paper>
         </Box>
@@ -257,8 +258,8 @@ const CheckoutPage: React.FC = () => {
                     ${dummyBookingDetails.roomInfo.price.toFixed(2)}
                   </Typography>
                 </Box>
-              </Box>
-            </CardContent>
+                </Box>
+              </CardContent>
           </Card>
         </Box>
       </Box>

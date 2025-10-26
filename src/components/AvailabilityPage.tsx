@@ -273,9 +273,9 @@ const AvailabilityPage: React.FC = () => {
                         hotelId: hotelDetails.hotelId,
                         hotelName: hotelDetails.hotelName,
                         location: `${hotelDetails.addressLine}, ${hotelDetails.city}, ${hotelDetails.country}`,
-                        rating: hotelDetails.rating,
+                        rating: 4.5, // Default rating value
                         totalReviews: hotelDetails.reviews.length,
-                        image: hotelDetails.images[0]
+                        image: hotelDetails.rooms[0].images[0] // Using first room's first image
                       },
                       bookingDates: {
                         checkIn: {

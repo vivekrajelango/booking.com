@@ -65,7 +65,7 @@ export interface SearchParams {
 }
 
 // API configuration
-export const API_BASE_URL = '/api';
+export const API_BASE_URL = '/api/v1';
 
 // Fetch hotel details
 export const getHotelById = async (

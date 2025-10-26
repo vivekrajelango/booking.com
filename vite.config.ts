@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': {
-        target: 'https://cc0b8b81dcdf.ngrok-free.app',
+      '/api/v1': {
+        target: 'https://5b676b1fab63.ngrok-free.app',
         changeOrigin: true,
         secure: false
       }
