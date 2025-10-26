@@ -18,6 +18,7 @@ import {
   Button,
   ImageList,
   ImageListItem,
+  IconButton,
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -30,6 +31,8 @@ import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
 import PoolIcon from '@mui/icons-material/Pool';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 const facilityIcons: { [key: string]: React.ReactElement } = {
   'Free Wi-Fi': <WifiIcon />,
@@ -59,6 +62,17 @@ const AvailabilityPage: React.FC = () => {
   const [hotelDetails, setHotelDetails] = useState<ApiHotelDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedRooms, setSelectedRooms] = useState<Array<{
+    roomType: string;
+    price: number;
+    quantity: number;
+    roomTypeId: string;
+  }>>([]);
+  
+  // Ensure each room has a unique ID
+  const getRoomId = (room: any, index: number): string => {
+    return room?.roomTypeId || `room-${index}`;
+  };
 
   const handleBack = () => {
     if (searchState.searchResults.length > 0) {
@@ -264,44 +278,117 @@ const AvailabilityPage: React.FC = () => {
                   </Typography>
                   <Typography variant="caption">per night</Typography>
                 </Box>
-                <Button 
-                  variant="contained" 
-                  color="primary"
-                  onClick={() => navigate('/checkout', {
-                    state: {
-                      hotelInfo: {
-                        hotelId: hotelDetails.hotelId,
-                        hotelName: hotelDetails.hotelName,
-                        location: `${hotelDetails.addressLine}, ${hotelDetails.city}, ${hotelDetails.country}`,
-                        rating: 4.5, // Default rating value
-                        totalReviews: hotelDetails.reviews.length,
-                        image: hotelDetails.rooms[0].images[0] // Using first room's first image
-                      },
-                      bookingDates: {
-                        checkIn: {
-                          date: state.checkIn,
-                          time: '15:00'
-                        },
-                        checkOut: {
-                          date: state.checkOut,
-                          time: '11:00'
-                        }
-                      },
-                      roomInfo: {
-                        roomType: room.roomTypeName,
-                        guests: state.guests,
-                        price: room.baseRate
-                      }
-                    }
-                  })}
-                >
-                  Reserve
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {(selectedRooms.find(r => r.roomTypeId === getRoomId(room, index))?.quantity || 0) > 0 ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <IconButton 
+                        size="small"
+                        onClick={() => {
+                          setSelectedRooms(prev => {
+                            const existing = prev.find(r => r.roomTypeId === getRoomId(room, index));
+                            if (existing && existing.quantity > 1) {
+                              return prev.map(r => r.roomTypeId === getRoomId(room, index) ? 
+                                {...r, quantity: r.quantity - 1} : r);
+                            } else {
+                              return prev.filter(r => r.roomTypeId !== getRoomId(room, index));
+                            }
+                          });
+                        }}
+                      >
+                        <RemoveIcon />
+                      </IconButton>
+                      <Typography sx={{ mx: 1 }}>
+                        {selectedRooms.find(r => r.roomTypeId === getRoomId(room, index))?.quantity || 0}
+                      </Typography>
+                      <IconButton 
+                        size="small"
+                        onClick={() => {
+                          setSelectedRooms(prev => {
+                            const existing = prev.find(r => r.roomTypeId === getRoomId(room, index));
+                            if (existing) {
+                              return prev.map(r => r.roomTypeId === getRoomId(room, index) ? 
+                                {...r, quantity: r.quantity + 1} : r);
+                            } else {
+                              return [...prev, {
+                                roomType: room.roomTypeName,
+                                price: room.baseRate,
+                                quantity: 1,
+                                roomTypeId: getRoomId(room, index)
+                              }];
+                            }
+                          });
+                        }}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Button 
+                      variant="contained" 
+                      color="primary"
+                      onClick={() => {
+                        setSelectedRooms(prev => [...prev, {
+                          roomType: room.roomTypeName,
+                          price: room.baseRate,
+                          quantity: 1,
+                          roomTypeId: getRoomId(room, index)
+                        }]);
+                      }}
+                    >
+                      Add
+                    </Button>
+                  )}
+                </Box>
               </Box>
             </CardContent>
           </Card>
         ))}
       </Box>
+
+      {/* Reserve Button Section */}
+      {selectedRooms.length > 0 && (
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Box sx={{ mr: 3 }}>
+            <Typography variant="h6">
+              Total: ${selectedRooms.reduce((sum, room) => sum + (room.price * room.quantity), 0).toFixed(2)}
+            </Typography>
+            <Typography variant="caption">
+              {selectedRooms.reduce((sum, room) => sum + room.quantity, 0)} room(s) selected
+            </Typography>
+          </Box>
+          <Button 
+            variant="contained" 
+            color="primary"
+            size="large"
+            disabled={selectedRooms.length === 0}
+            onClick={() => navigate('/checkout', {
+              state: {
+                hotelInfo: {
+                  hotelId: hotelDetails.hotelId,
+                  hotelName: hotelDetails.hotelName,
+                  location: `${hotelDetails.addressLine}, ${hotelDetails.city}, ${hotelDetails.country}`,
+                  rating: 4.5, // Default rating value
+                  totalReviews: hotelDetails.reviews.length,
+                  image: hotelDetails.rooms[0].images[0] // Using first room's first image
+                },
+                bookingDates: {
+                  checkIn: {
+                    date: state.checkIn,
+                    time: '15:00'
+                  },
+                  checkOut: {
+                    date: state.checkOut,
+                    time: '11:00'
+                  }
+                },
+                roomInfo: selectedRooms
+              }
+            })}
+          >
+            Reserve
+          </Button>
+        </Box>
+      )}
 
       {/* Reviews Section */}
       <Box sx={{ mt: 6 }}>
