@@ -75,23 +75,27 @@ const AvailabilityPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (searchState.searchResults.length > 0) {
-      navigate('/');
-    } else {
-      window.history.back();
-    }
+    // Always navigate to home to preserve search state
+    navigate('/');
   };
 
   useEffect(() => {
     const fetchHotelDetails = async () => {
-      if (!state || !state.hotelId || !state.checkIn || !state.checkOut || !state.guests) {
+      // Use URL parameters if state is not available
+      const urlParams = new URLSearchParams(window.location.search);
+      const hotelId = state?.hotelId || urlParams.get('hotelId');
+      const checkIn = state?.checkIn || urlParams.get('checkIn') || searchState.dateRange.startDate?.toISOString().split('T')[0];
+      const checkOut = state?.checkOut || urlParams.get('checkOut') || searchState.dateRange.endDate?.toISOString().split('T')[0];
+      const guests = state?.guests || urlParams.get('guests') || String(searchState.guestInfo.adults + searchState.guestInfo.children);
+
+      if (!hotelId || !checkIn || !checkOut || !guests) {
         setError('Please go back and select dates and guests');
         setLoading(false);
         return;
       }
 
       try {
-        const response = await getHotelById(state.hotelId, state.checkIn, state.checkOut, state.guests);
+        const response = await getHotelById(hotelId, checkIn, checkOut, guests);
         console.log('data', response);
         // The API returns the hotel details nested in a data property
         if (response && response.data) {
@@ -107,7 +111,7 @@ const AvailabilityPage: React.FC = () => {
     };
 
     fetchHotelDetails();
-  }, [state]);
+  }, [state, searchState]);
 
   if (loading) {
     return (

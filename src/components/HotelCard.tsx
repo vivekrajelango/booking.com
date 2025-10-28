@@ -22,9 +22,16 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
     const checkIn = searchParams.get('checkIn');
     const checkOut = searchParams.get('checkOut');
     const guests = searchParams.get('guests');
-
+    
+    // Add parameters to URL for persistence
+    const urlParams = new URLSearchParams();
+    urlParams.set('hotelId', hotel.hotelId);
+    urlParams.set('checkIn', checkIn || '');
+    urlParams.set('checkOut', checkOut || '');
+    urlParams.set('guests', guests || '');
+    
     // Navigate to the availability page and pass data as state
-    navigate('/availability', {
+    navigate(`/availability?${urlParams.toString()}`, {
       state: {
         hotelId: hotel.hotelId,
         checkIn,
