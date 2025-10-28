@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/v1': {
-        target: 'https://5b676b1fab63.ngrok-free.app',
+        target: 'https://api-gateway.happyforest-8a2b009f.uksouth.azurecontainerapps.io',
         changeOrigin: true,
         secure: false
       }

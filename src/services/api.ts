@@ -65,7 +65,63 @@ export interface SearchParams {
 }
 
 // API configuration
-export const API_BASE_URL = '/api/v1';
+export const API_BASE_URL = import.meta.env.PROD 
+  ? 'https://api-gateway.happyforest-8a2b009f.uksouth.azurecontainerapps.io/api/v1'
+  : '/api/v1';
+
+// Auth interfaces
+export interface LoginCredentials {
+  emailAddress: string;
+  password: string;
+}
+
+
+export interface SignupCredentials {
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  password: string;
+}
+
+export interface SignupResponse {
+  success: boolean;
+  message?: string;
+  userId?: string;
+}
+
+// Signup function
+export const signup = async (credentials: SignupCredentials): Promise<SignupResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Registration successful!',
+        userId: data.userId || data.id,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Registration failed. Please try again.',
+      };
+    }
+  } catch (error) {
+    console.error('Signup error:', error);
+    return {
+      success: false,
+      message: 'An error occurred during registration. Please try again.',
+    };
+  }
+};
 
 // Fetch hotel details
 export const getHotelById = async (
@@ -131,10 +187,78 @@ export const searchHotels = async (params: SearchParams): Promise<Hotel[]> => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data: ApiResponse = await response.json();
-    return data.data;
+    const data = await response.json();
+    console.log('API response:', data);
+    
+    // Check if the response has the expected structure from the screenshot
+    if (data.data && data.data.items && Array.isArray(data.data.items)) {
+      return data.data.items; // Return the items array from the response
+    } else if (data.data && Array.isArray(data.data)) {
+      return data.data; // Fallback to the original structure
+    } else {
+      console.error('Unexpected API response structure:', data);
+      return [];
+    }
   } catch (error) {
     console.error('Error fetching hotels:', error);
     throw error;
+  }
+};
+
+// Login API interface
+export interface LoginCredentials {
+  emailAddress: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+  };
+}
+
+// Login API call
+export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  console.log('Logging in with:', credentials.emailAddress);
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': window.location.origin,
+      },
+      body: JSON.stringify(credentials),
+      mode: 'cors',
+      credentials: 'omit'
+    });
+
+    const data = await response.json();
+    console.log('Login response:', data);
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || 'Login failed. Please check your credentials.'
+      };
+    }
+    
+    return {
+      success: true,
+      message: data.message || 'Login successful',
+      token: data.token,
+      user: data.user
+    };
+  } catch (error) {
+    console.error('Error during login:', error);
+    return {
+      success: false,
+      message: 'An error occurred during login. Please try again.'
+    };
   }
 };
