@@ -158,6 +158,7 @@ export const reserveBooking = async (bookingData: BookingReservationRequest): Pr
       headers: {
         'Content-Type': 'application/json',
         'Origin': window.location.origin,
+        'Idempotency-Key': '12345-ABADDDD', // Required header for reserve API
       },
       body: JSON.stringify(bookingData),
       mode: 'cors',

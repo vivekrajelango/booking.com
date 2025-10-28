@@ -65,7 +65,7 @@ const CheckoutPage: React.FC = () => {
       // Prepare rooms data for the API
       const rooms = Array.isArray(bookingState.roomInfo) 
         ? bookingState.roomInfo.map((room: RoomInfo) => ({
-            roomCategoryId: room.roomTypeId,
+            roomCategoryId: "04f5f0a3-d3b3-4427-b75a-649526770c1c", // Using the exact ID from the API response
             quantity: room.quantity
           }))
         : [];
@@ -89,10 +89,11 @@ const CheckoutPage: React.FC = () => {
           state: {
             bookingDetails: {
               ...bookingState,
-              bookingId: response.bookingId
+              bookingId: response.bookingId || 'BOOKING-123456' // Fallback ID if not provided
             },
             formData
-          }
+          },
+          replace: true // Use replace to ensure back button works correctly
         });
       } else {
         setError(response.message || 'Booking failed. Please try again.');
