@@ -19,7 +19,7 @@ import {
 import { Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { dummyBookingDetails } from '../data/checkoutData';
-import type { CheckoutFormData, BookingDetails, RoomInfo } from '../types/checkout';
+import type { CheckoutFormData, RoomInfo } from '../types/checkout';
 import { countries } from '../data/countries';
 import { reserveBooking } from '../services/api';
 

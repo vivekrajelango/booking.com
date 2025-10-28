@@ -5,7 +5,6 @@ import {
   Typography,
   Button,
   Container,
-  Box,
   IconButton,
   Stack,
   Avatar,
@@ -15,8 +14,6 @@ import {
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import HomeIcon from '@mui/icons-material/Home';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PersonIcon from '@mui/icons-material/Person';
 import BookingsIcon from '@mui/icons-material/BookOnline';
 import LogoutIcon from '@mui/icons-material/Logout';

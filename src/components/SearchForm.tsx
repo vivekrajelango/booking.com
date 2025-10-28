@@ -137,7 +137,7 @@ const SearchForm: React.FC = () => {
   };
 
   const formatGuestInfo = () => {
-    const { adults, children, rooms } = searchState.guestInfo;
+    const { adults, children } = searchState.guestInfo;
     return `${adults} ${adults === 1 ? 'adult' : 'adults'} · ${children} ${children === 1 ? 'child' : 'children'}`;
   };
 
