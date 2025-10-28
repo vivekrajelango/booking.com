@@ -379,8 +379,10 @@ const AvailabilityPage: React.FC = () => {
                   hotelName: hotelDetails.hotelName,
                   location: `${hotelDetails.addressLine}, ${hotelDetails.city}, ${hotelDetails.country}`,
                   rating: 4.5, // Default rating value
-                  totalReviews: hotelDetails.reviews.length,
-                  image: hotelDetails.rooms[0].images[0] // Using first room's first image
+                  totalReviews: hotelDetails.reviews ? hotelDetails.reviews.length : 0,
+                  image: hotelDetails.rooms && hotelDetails.rooms.length > 0 && hotelDetails.rooms[0].images && hotelDetails.rooms[0].images.length > 0 
+                    ? hotelDetails.rooms[0].images[0] 
+                    : 'https://via.placeholder.com/300x200?text=No+Image+Available' // Fallback image
                 },
                 bookingDates: {
                   checkIn: {

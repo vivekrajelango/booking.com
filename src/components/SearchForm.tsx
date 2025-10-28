@@ -138,7 +138,7 @@ const SearchForm: React.FC = () => {
 
   const formatGuestInfo = () => {
     const { adults, children, rooms } = searchState.guestInfo;
-    return `${adults} ${adults === 1 ? 'adult' : 'adults'} · ${children} ${children === 1 ? 'child' : 'children'} · ${rooms} ${rooms === 1 ? 'room' : 'rooms'}`;
+    return `${adults} ${adults === 1 ? 'adult' : 'adults'} · ${children} ${children === 1 ? 'child' : 'children'}`;
   };
 
   const dateOpen = Boolean(dateAnchorEl);
@@ -285,7 +285,7 @@ const SearchForm: React.FC = () => {
             onClick={handleSearch}
             disabled={isSearching || !isFormValid()}
             sx={{ 
-              height: { xs: '40px', sm: '56px' },
+              height: { xs: '40px' },
               borderRadius: '8px',
               px: { xs: 2, sm: 4 },
               fontSize: { xs: '0.875rem', sm: '1rem' },

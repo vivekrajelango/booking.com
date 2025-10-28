@@ -1,3 +1,10 @@
+export interface RoomInfo {
+  roomType: string;
+  price: number;
+  quantity: number;
+  roomTypeId: string;
+}
+
 export interface BookingDetails {
   hotelInfo: {
     hotelId: string;
@@ -17,7 +24,7 @@ export interface BookingDetails {
       time: string;
     };
   };
-  roomInfo: {
+  roomInfo: RoomInfo[] | {
     roomType: string;
     guests: string;
     price: number;

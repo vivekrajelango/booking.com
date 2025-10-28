@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -13,17 +13,23 @@ import {
   Divider,
   MenuItem,
   Paper,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { dummyBookingDetails } from '../data/checkoutData';
-import type { CheckoutFormData } from '../types/checkout';
+import type { CheckoutFormData, BookingDetails, RoomInfo } from '../types/checkout';
 import { countries } from '../data/countries';
+import { reserveBooking } from '../services/api';
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const bookingState = location.state || { hotelInfo: dummyBookingDetails.hotelInfo, bookingDates: dummyBookingDetails.bookingDates, roomInfo: [] };
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<CheckoutFormData>({
     firstName: '',
     lastName: '',
@@ -46,21 +52,54 @@ const CheckoutPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     try {
-      // Simulate API call with a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Extract dates from the booking state
+      // Ensure dates are properly formatted as strings (YYYY-MM-DD)
+      const checkIn = bookingState.bookingDates.checkIn.date;
+      const checkOut = bookingState.bookingDates.checkOut.date;
       
-      // Navigate to confirmation page with booking details
-      navigate('/confirmation', {
-        state: {
-          bookingDetails: dummyBookingDetails,
-          formData
-        }
-      });
+      console.log('Booking dates:', { checkIn, checkOut }); // Debug log
+      
+      // Prepare rooms data for the API
+      const rooms = Array.isArray(bookingState.roomInfo) 
+        ? bookingState.roomInfo.map((room: RoomInfo) => ({
+            roomCategoryId: room.roomTypeId,
+            quantity: room.quantity
+          }))
+        : [];
+      
+      // Prepare the booking request payload
+      const bookingData = {
+        hotelId: bookingState.hotelInfo.hotelId,
+        userId: "1e3dd039-690f-47fe-90f1-4d20a4903b00", // Hardcoded for now, should come from auth context
+        rooms: rooms,
+        guests: 1, // This should be calculated from the actual guests count
+        checkIn: checkIn || new Date().toISOString().split('T')[0], // Fallback to today if null
+        checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0] // Fallback to tomorrow if null
+      };
+      
+      // Call the reserveBooking API
+      const response = await reserveBooking(bookingData);
+      
+      if (response.success) {
+        // Navigate to confirmation page with booking details
+        navigate('/confirmation', {
+          state: {
+            bookingDetails: {
+              ...bookingState,
+              bookingId: response.bookingId
+            },
+            formData
+          }
+        });
+      } else {
+        setError(response.message || 'Booking failed. Please try again.');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Here you could add error handling UI if needed
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -185,6 +224,11 @@ const CheckoutPage: React.FC = () => {
                   </Button>
                 </Col>
               </Row>
+              {error && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {error}
+                </Alert>
+              )}
             </form>
           </Paper>
         </Box>
@@ -195,22 +239,22 @@ const CheckoutPage: React.FC = () => {
             <CardMedia
               component="img"
               height="200"
-              image={dummyBookingDetails.hotelInfo.image}
-              alt={dummyBookingDetails.hotelInfo.hotelName}
+              image={bookingState.hotelInfo.image}
+              alt={bookingState.hotelInfo.hotelName}
             />
             <CardContent>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="h6" gutterBottom>
-                  {dummyBookingDetails.hotelInfo.hotelName}
+                  {bookingState.hotelInfo.hotelName}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Rating value={dummyBookingDetails.hotelInfo.rating} readOnly precision={0.5} />
+                  <Rating value={bookingState.hotelInfo.rating} readOnly precision={0.5} />
                   <Typography variant="body2" sx={{ ml: 1 }}>
-                    {dummyBookingDetails.hotelInfo.totalReviews} reviews
+                    {bookingState.hotelInfo.totalReviews} reviews
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">
-                  {dummyBookingDetails.hotelInfo.location}
+                  {bookingState.hotelInfo.location}
                 </Typography>
               </Box>
 
@@ -221,10 +265,10 @@ const CheckoutPage: React.FC = () => {
                   Check-in
                 </Typography>
                 <Typography variant="body2">
-                  {dummyBookingDetails.bookingDates.checkIn.date}
+                  {bookingState.bookingDates.checkIn.date}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {dummyBookingDetails.bookingDates.checkIn.time}
+                  {bookingState.bookingDates.checkIn.time}
                 </Typography>
               </Box>
 
@@ -233,10 +277,10 @@ const CheckoutPage: React.FC = () => {
                   Check-out
                 </Typography>
                 <Typography variant="body2">
-                  {dummyBookingDetails.bookingDates.checkOut.date}
+                  {bookingState.bookingDates.checkOut.date}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {dummyBookingDetails.bookingDates.checkOut.time}
+                  {bookingState.bookingDates.checkOut.time}
                 </Typography>
               </Box>
 
@@ -244,21 +288,34 @@ const CheckoutPage: React.FC = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   Room Details
                 </Typography>
-                <Typography variant="body2">
-                  {dummyBookingDetails.roomInfo.roomType}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {dummyBookingDetails.roomInfo.guests}
-                </Typography>
+                {Array.isArray(bookingState.roomInfo) ? (
+                  bookingState.roomInfo.map((room: RoomInfo, index: number) => (
+                    <Box key={index} sx={{ mb: 1 }}>
+                      <Typography variant="body2">
+                        {room.roomType} x {room.quantity}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        ${room.price.toFixed(2)} per night
+                      </Typography>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant="body2">
+                    No rooms selected
+                  </Typography>
+                )}
+                
                 <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <Typography variant="body2" color="text.secondary">
                     Total price
                   </Typography>
                   <Typography variant="h6" color="primary">
-                    ${dummyBookingDetails.roomInfo.price.toFixed(2)}
+                    ${Array.isArray(bookingState.roomInfo) 
+                      ? bookingState.roomInfo.reduce((sum: number, room: RoomInfo) => sum + (room.price * room.quantity), 0).toFixed(2)
+                      : "0.00"}
                   </Typography>
                 </Box>
-                </Box>
+              </Box>
               </CardContent>
           </Card>
         </Box>

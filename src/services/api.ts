@@ -95,6 +95,27 @@ export interface SignupResponse {
   userId?: string;
 }
 
+// Booking reservation interfaces
+export interface RoomReservation {
+  roomCategoryId: string;
+  quantity: number;
+}
+
+export interface BookingReservationRequest {
+  hotelId: string;
+  userId: string;
+  rooms: RoomReservation[];
+  guests: number;
+  checkIn: string;
+  checkOut: string;
+}
+
+export interface BookingReservationResponse {
+  success: boolean;
+  message?: string;
+  bookingId?: string;
+}
+
 // Signup function
 export const signup = async (credentials: SignupCredentials): Promise<SignupResponse> => {
   try {
@@ -125,6 +146,43 @@ export const signup = async (credentials: SignupCredentials): Promise<SignupResp
     return {
       success: false,
       message: 'An error occurred during registration. Please try again.',
+    };
+  }
+};
+
+// Reserve booking
+export const reserveBooking = async (bookingData: BookingReservationRequest): Promise<BookingReservationResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/bookings/reserve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': window.location.origin,
+      },
+      body: JSON.stringify(bookingData),
+      mode: 'cors',
+      credentials: 'omit'
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Booking successful!',
+        bookingId: data.bookingId || data.id,
+      };
+    } else {
+      return {
+        success: false,
+        message: data.message || 'Booking failed. Please try again.',
+      };
+    }
+  } catch (error) {
+    console.error('Booking error:', error);
+    return {
+      success: false,
+      message: 'An error occurred during booking. Please try again.',
     };
   }
 };
