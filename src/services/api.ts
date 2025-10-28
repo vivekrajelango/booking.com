@@ -56,6 +56,12 @@ export interface ApiResponse {
   data: Hotel[];
 }
 
+export interface HotelDetailsResponse {
+  success: boolean;
+  message: string;
+  data: HotelDetails;
+}
+
 export interface SearchParams {
   query: string;
   from: string;
@@ -129,7 +135,7 @@ export const getHotelById = async (
   checkIn: string,
   checkOut: string,
   guests: string
-): Promise<HotelDetails> => {
+): Promise<HotelDetailsResponse> => {
   try {
     const response = await fetch(
       `${API_BASE_URL}/hotels/${hotelId}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
@@ -149,8 +155,8 @@ export const getHotelById = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data: HotelDetails = await response.json();
-    return data;
+    const data = await response.json();
+    return data as HotelDetailsResponse;
   } catch (error) {
     console.error('Error fetching hotel details:', error);
     throw error;

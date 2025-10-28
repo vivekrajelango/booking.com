@@ -91,8 +91,14 @@ const AvailabilityPage: React.FC = () => {
       }
 
       try {
-        const data = await getHotelById(state.hotelId, state.checkIn, state.checkOut, state.guests);
-        setHotelDetails(data);
+        const response = await getHotelById(state.hotelId, state.checkIn, state.checkOut, state.guests);
+        console.log('data', response);
+        // The API returns the hotel details nested in a data property
+        if (response && response.data) {
+          setHotelDetails(response.data);
+        } else {
+          setError('Invalid hotel data received');
+        }
       } catch (err) {
         setError('Failed to fetch hotel details');
       } finally {
@@ -145,22 +151,22 @@ const AvailabilityPage: React.FC = () => {
       {/* Hotel Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 2 }}>
-          {hotelDetails.hotelName}
+          {hotelDetails.hotelName || 'Hotel Details'}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <LocationOnIcon sx={{ mr: 1, color: 'text.secondary' }} />
           <Typography color="text.secondary">
-            {hotelDetails.addressLine}, {hotelDetails.city}, {hotelDetails.country}
+            {hotelDetails.addressLine || ''}{hotelDetails.city ? `, ${hotelDetails.city}` : ''}{hotelDetails.country ? `, ${hotelDetails.country}` : ''}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Chip
-            label={`${hotelDetails.averageRating.toFixed(1)}/10`}
+            label={`${hotelDetails.averageRating ? hotelDetails.averageRating.toFixed(1) : '0.0'}/10`}
             color="primary"
             sx={{ fontWeight: 'bold' }}
           />
           <Typography variant="body2">
-            {hotelDetails.totalReviews} reviews
+            {hotelDetails.totalReviews || 0} reviews
           </Typography>
         </Box>
       </Box>
@@ -180,16 +186,17 @@ const AvailabilityPage: React.FC = () => {
         >
           <ImageListItem cols={2} rows={2}>
             <img
-              src={hotelDetails.imageUrl}
-              alt={hotelDetails.hotelName}
+              src={hotelDetails.imageUrl || 'https://via.placeholder.com/800x600?text=Hotel+Image'}
+              alt={hotelDetails.hotelName || 'Hotel Image'}
               style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             />
           </ImageListItem>
-          {hotelDetails.rooms[0]?.images.slice(0, 3).map((image, index) => (
+          {/* Simplified image gallery - just show the main image in multiple spots */}
+          {[1, 2, 3].map((index) => (
             <ImageListItem key={index}>
               <img
-                src={image}
-                alt={`Room ${index + 1}`}
+                src={hotelDetails.imageUrl || 'https://via.placeholder.com/400x300?text=Room+Image'}
+                alt={`Room ${index}`}
                 style={{ objectFit: 'cover', width: '100%', height: '100%' }}
               />
             </ImageListItem>
@@ -212,7 +219,7 @@ const AvailabilityPage: React.FC = () => {
           },
           gap: 2
         }}>
-          {hotelDetails.facilities.map((facility, index) => (
+          {hotelDetails.facilities && hotelDetails.facilities.map((facility, index) => (
             <Chip
               key={index}
               icon={facilityIcons[facility]}
@@ -231,21 +238,21 @@ const AvailabilityPage: React.FC = () => {
         Available Rooms
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-        {hotelDetails.rooms.map((room, index) => (
+        {hotelDetails.rooms && Array.isArray(hotelDetails.rooms) && hotelDetails.rooms.map((room, index) => (
           <Card key={index} sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardMedia
               component="img"
               height="200"
-              image={room.images[0]}
-              alt={room.roomTypeName}
+              image={hotelDetails.imageUrl || ''}
+              alt={room.roomTypeName || `Room ${index + 1}`}
               sx={{ objectFit: 'cover' }}
             />
             <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
               <Typography variant="h6" gutterBottom>
-                {room.roomTypeName}
+                {room.roomTypeName || `Room ${index + 1}`}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Max guests: {room.maximumGuests} • {room.info}
+                Max guests: {room.maximumGuests || 2} {room.info && `• ${room.info}`}
               </Typography>
               
               {/* Bed Configuration */}
@@ -396,20 +403,22 @@ const AvailabilityPage: React.FC = () => {
           Guest Reviews
         </Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-          {hotelDetails.reviews.map((review, index) => (
+          {hotelDetails.reviews && Array.isArray(hotelDetails.reviews) && hotelDetails.reviews.map((review, index) => (
             <Card key={index}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <Box>
                     <Typography variant="subtitle2">
-                      {new Date(review.createdAt).toLocaleDateString()}
+                      Guest Review {index + 1}
                     </Typography>
                   </Box>
                   <Box sx={{ ml: 'auto' }}>
-                    <Rating value={review.rating / 2} precision={0.5} readOnly size="small" />
+                    <Rating value={(review.rating || 0) / 2} precision={0.5} readOnly size="small" />
                   </Box>
                 </Box>
-                <Typography variant="body2">{review.comment}</Typography>
+                <Typography variant="body2">
+                  {review.comment || `Rating: ${review.rating}/10`}
+                </Typography>
               </CardContent>
             </Card>
           ))}
